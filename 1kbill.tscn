@@ -1,0 +1,6 @@
+[gd_scene format=3 uid="uid://d1ap6dmj4dh1y"]
+
+[ext_resource type="Texture2D" uid="uid://cch8ky888g4fu" path="res://images/1000 peso bill.png" id="1_kl4ps"]
+
+[node name="Node2D" type="TextureRect" unique_id=292441156]
+texture = ExtResource("1_kl4ps")

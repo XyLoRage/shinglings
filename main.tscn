@@ -1,0 +1,72 @@
+[gd_scene format=3 uid="uid://dvrh011mv4q3p"]
+
+[ext_resource type="Script" uid="uid://d4pkjxaofiuy" path="res://control.gd" id="1_ig7tw"]
+[ext_resource type="PackedScene" uid="uid://d1ap6dmj4dh1y" path="res://1kbill.tscn" id="2_0xm2m"]
+[ext_resource type="AudioStream" uid="uid://bncvvalibbwv5" path="res://sfx/paperflip.wav" id="3_h2yge"]
+[ext_resource type="PackedScene" uid="uid://csmmgdvoova5d" path="res://fire_particles.tscn" id="4_1bvp3"]
+[ext_resource type="AudioStream" uid="uid://bv0ns3tr57y86" path="res://sfx/fahhh_KcgAXfs.mp3" id="4_lquwl"]
+[ext_resource type="AudioStream" uid="uid://dds00g5ucorkj" path="res://sfx/freesound_community-cash-register-purchase-87313.mp3" id="5_7mycd"]
+
+[node name="main" type="Node2D" unique_id=1858198557]
+
+[node name="CanvasLayer" type="CanvasLayer" parent="." unique_id=2000954329]
+
+[node name="Control" type="Control" parent="CanvasLayer" unique_id=829627732 node_paths=PackedStringArray("sample_bill")]
+layout_mode = 3
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+script = ExtResource("1_ig7tw")
+bill_scene = ExtResource("2_0xm2m")
+paper_sfx = ExtResource("3_h2yge")
+lose_sfx = ExtResource("4_lquwl")
+win_sfx = ExtResource("5_7mycd")
+sample_bill = NodePath("../../Bill")
+fire_particles = ExtResource("4_1bvp3")
+
+[node name="VBoxContainer" type="VBoxContainer" parent="CanvasLayer/Control" unique_id=367512705]
+layout_mode = 1
+anchors_preset = 10
+anchor_right = 1.0
+offset_bottom = 85.0
+grow_horizontal = 2
+
+[node name="BillSpawnArea" type="Control" parent="CanvasLayer/Control/VBoxContainer" unique_id=529914986]
+custom_minimum_size = Vector2(0, 500)
+layout_mode = 2
+
+[node name="ResultPHP" type="Label" parent="CanvasLayer/Control/VBoxContainer" unique_id=68453667]
+layout_mode = 2
+text = "1000 PHP"
+horizontal_alignment = 1
+
+[node name="InputUSD" type="LineEdit" parent="CanvasLayer/Control/VBoxContainer" unique_id=1857368623]
+layout_mode = 2
+placeholder_text = "Enter USD Amount"
+alignment = 1
+
+[node name="Title" type="Label" parent="CanvasLayer/Control/VBoxContainer" unique_id=989120046]
+layout_mode = 2
+text = "USD TO PHP"
+horizontal_alignment = 1
+
+[node name="VScrollBar" type="VScrollBar" parent="CanvasLayer/Control/VBoxContainer" unique_id=654323382]
+custom_minimum_size = Vector2(720, 0)
+layout_mode = 2
+
+[node name="CheckBox" type="CheckBox" parent="CanvasLayer/Control/VBoxContainer/VScrollBar" unique_id=1318696885]
+custom_minimum_size = Vector2(0, 100)
+layout_mode = 0
+offset_top = -4.0
+offset_right = 104.0
+offset_bottom = 96.0
+text = "lololololol"
+
+[node name="Bill" parent="." unique_id=292441156 instance=ExtResource("2_0xm2m")]
+offset_top = -688.0
+offset_right = 367.0
+offset_bottom = -612.0
+
+[connection signal="text_submitted" from="CanvasLayer/Control/VBoxContainer/InputUSD" to="CanvasLayer/Control" method="_on_input_usd_text_submitted"]

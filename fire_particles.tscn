@@ -1,0 +1,25 @@
+[gd_scene format=3 uid="uid://csmmgdvoova5d"]
+
+[sub_resource type="Curve" id="Curve_4touq"]
+_data = [Vector2(0, 0.9232271), 0.0, 0.0, 0, 0, Vector2(0.52225757, 0.6229267), -0.11450751, -0.11450751, 0, 0, Vector2(1, 0.0745523), 0.0, 0.0, 0, 0]
+point_count = 3
+
+[sub_resource type="Gradient" id="Gradient_by1ht"]
+colors = PackedColorArray(0.8514171, 0.4268132, 0.17722353, 1, 1, 1, 1, 0)
+
+[node name="FireParticles" type="CPUParticles2D" unique_id=1641278485]
+emitting = false
+one_shot = true
+explosiveness = 0.8
+randomness = 0.6
+emission_shape = 3
+emission_rect_extents = Vector2(367, 76)
+direction = Vector2(0, -1)
+gravity = Vector2(0, 0)
+initial_velocity_min = 10.0
+initial_velocity_max = 10.0
+scale_amount_min = 10.0
+scale_amount_max = 20.0
+scale_amount_curve = SubResource("Curve_4touq")
+color = Color(0.88736105, 0.38580373, 0.1943261, 1)
+color_ramp = SubResource("Gradient_by1ht")
