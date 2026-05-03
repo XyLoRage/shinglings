@@ -9,13 +9,22 @@ extends Control
 @export var sample_bill:TextureRect
 @export var fire_particles: PackedScene
 # --- Node references ---
-@onready var input_usd = $VBoxContainer/InputUSD
-@onready var result_php = $VBoxContainer/ResultPHP
+@export var input_usd:LineEdit
+@export var input_conversion:LineEdit
+@export var result_php:Label
 #@onready var equivalents_label = $VBoxContainer/Equivalents
 @onready var spawn_area = $VBoxContainer/BillSpawnArea
 
+const PREFIX = "$"
+const PREFIX2 = "₱"
+
+var usd_amount = 0.0;
+
 func _ready():
-	pass
+	input_usd.text = PREFIX
+	input_usd.caret_column = input_usd.text.length() 
+	input_conversion.text = PREFIX2+str(exchange_rate)
+	input_conversion.caret_column = input_conversion.text.length() 
 
 func update_equivalents(php: float):
 	pass # Logic hidden per your script
@@ -31,7 +40,8 @@ func play_sfx(sfx:AudioStream):
 
 func update_bills(php: float):
 	var num_1k_bills = floor(php / 1000)
-	var target_count = min(num_1k_bills, 200) 
+	var target_count = min(num_1k_bills, 500) 
+	var stack_offset = 5 
 	
 	var current_bills = spawn_area.get_children()
 	var current_count = current_bills.size()
@@ -40,18 +50,21 @@ func update_bills(php: float):
 		return # No changes needed
 
 	var num_stacks = 1
-	if target_count > 20:
+	if target_count > 100:
+		num_stacks = 4
+		stack_offset = 2
+	elif target_count > 20:
 		num_stacks = 4
 	elif target_count > 10:
 		num_stacks = 2
 
-	var area_width = spawn_area.size.x
+	var area_width = get_viewport_rect().size.x
 	if area_width == 0:
 		area_width = get_viewport_rect().size.x
 
 	var drop_height = -500 # Way above the screen for both spawning and flying away
 	var bottom_target = spawn_area.size.y - 100 
-	var stack_offset = 5 
+	
 	var row_gap = 80 
 	
 	# Get bill width to use in your math. Instantiate a temporary one if empty.
@@ -148,18 +161,67 @@ func update_bills(php: float):
 			
 			# Notice there is NO await timer here! This makes all excess bills burn exactly at the same time.
 
+func set_php(php_amount):
+	if php_amount>=1000000:
+		result_php.text = "PHP: " + str(snapped(php_amount/1000000, 0.001)) +"M"
+	elif php_amount>=1000:
+		result_php.text = "PHP: " + str(snapped(php_amount/1000, 0.01)) +"K"
+	else:
+		result_php.text = "PHP: " + str(snapped(php_amount, 0.01)) 
+
 func _on_input_usd_text_submitted(new_text: String) -> void:
 	# Removed the manual queue_free() loop here! The update function handles it beautifully now.
-	
-	if new_text.is_empty() or not new_text.is_valid_float():
+	var filtered_text = new_text.replace("$", "")
+	if filtered_text.is_empty() or not filtered_text.is_valid_float():
 		result_php.text = "PHP: 0.00"
 		# Pass 0 to animate every single bill flying away
 		update_bills(0.0) 
 		return
 		
-	var usd_amount = new_text.to_float()
+	usd_amount = filtered_text.to_float()
 	var php_amount = usd_amount * exchange_rate
-	
-	result_php.text = "PHP: " + str(snapped(php_amount, 0.01))
+	set_php(php_amount)
 	update_equivalents(php_amount)
 	update_bills(php_amount)
+
+
+
+
+func _on_input_usd_text_changed(new_text: String) -> void:
+	# If the text doesn't start with the prefix, force it
+	if not new_text.begins_with(PREFIX):
+		input_usd.text = PREFIX + new_text.lstrip(PREFIX)
+		# Correct caret position so typing doesn't feel weird
+		input_usd.caret_column = input_usd.text.length()
+	
+	# Optional: Prevent empty input if user deletes everything
+	if input_usd.text == "":
+		input_usd.text = PREFIX
+		input_usd.caret_column = input_usd.text.length()
+
+
+func _on_input_conversion_text_submitted(new_text: String) -> void:
+	var filtered_text = new_text.replace("₱", "")
+	if filtered_text.is_empty() or not filtered_text.is_valid_float():
+		return
+	var conversion = filtered_text.to_float()
+	exchange_rate = conversion
+	print("new conversion rate: "+str(exchange_rate))
+	
+	var php_amount = usd_amount * exchange_rate
+	set_php(php_amount)
+	update_equivalents(php_amount)
+	update_bills(php_amount)
+
+
+func _on_input_conversion_text_changed(new_text: String) -> void:
+	# If the text doesn't start with the prefix, force it
+	if not new_text.begins_with(PREFIX2):
+		input_conversion.text = PREFIX2 + new_text.lstrip(PREFIX2)
+		# Correct caret position so typing doesn't feel weird
+		input_conversion.caret_column = input_usd.text.length()
+	
+	# Optional: Prevent empty input if user deletes everything
+	if input_conversion.text == "":
+		input_conversion.text = PREFIX2
+		input_conversion.caret_column = input_conversion.text.length()
